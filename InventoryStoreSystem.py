@@ -318,3 +318,115 @@ if __name__ == "__main__":
     print(json.dumps(STORE.read_inventory()))
     STORE.add_item("stick", "Wooden Stick", 2)
     print(json.dumps(STORE.read_inventory(), indent=2))
+
+
+
+"""
+
+    # INV FUNCTIONS
+    def _require_item(self, item_id: str) -> Item:
+        if item_id not in self._inv:
+            raise KeyError(f"item '{item_id}' not found")
+        return self._inv[item_id]
+
+    @function_tool
+    def read_inventory(self) -> List[Dict]:
+        """Return the full inventory as JSON.
+        Arguments: []"""
+        with self._lock:
+            return [it.to_json() for it in self._inv.values()]
+
+    @function_tool
+    def add_item(self, item_id: str, name: str, qty: int = 1) -> Item:
+        """Add a new item or increment quantity if it already exists
+        Arguments: [item_id, name, qty?]  (qty defaults to "1" if omitted)"""
+        if qty <= 0:
+            raise ValueError("qty must be positive")
+        with self._lock:
+            if item_id in self._inv:
+                self._inv[item_id].qty += qty
+            else:
+                self._inv[item_id] = Item(item_id=item_id, name=name, qty=qty)
+            return self._inv[item_id]
+
+    @function_tool
+    def remove_item(self, item_id: str) -> None:
+        """Remove the item entirely regardless of quantity.
+        Arguments: [item_id]"""
+        with self._lock:
+            if item_id in self._inv:
+                del self._inv[item_id]
+            else:
+                raise KeyError(f"item '{item_id}' not found")
+
+    @function_tool
+    def remove_items(self, item_id: str, qty: int) -> Item | None:
+        """Decrement quantity by qty; deletes item if remainder <= 0
+        Arguments: [item_id, qty]"""
+        if qty <= 0:
+            raise ValueError("qty must be positive")
+        with self._lock:
+            item = self._require_item(item_id)
+            item.qty -= qty
+            if item.qty <= 0:
+                del self._inv[item_id]
+                return None
+            return item
+
+    @function_tool
+    def set_description(self, item_id: str, description: str) -> Item:
+        """Replace the description text for an item.
+        Arguments: [item_id, description]"""
+        with self._lock:
+            item = self._require_item(item_id)
+            item.description = description
+            return item
+
+    @function_tool
+    def get_description(self, item_id: str) -> str:
+        """Read the description for an item.
+        Arguments: [item_id]"""
+        with self._lock:
+            return self._require_item(item_id).description
+
+    @function_tool
+    def set_note(self, item_id: str, note: str) -> Item:
+        """Replace the GM-only note text for an item.
+        Arguments: [item_id, note]"""
+        with self._lock:
+            item = self._require_item(item_id)
+            item.note = note
+            return item
+
+    @function_tool
+    def get_note(self, item_id: str) -> str:
+        """Read the GM-only note for an item.
+        Arguments: [item_id]"""
+        with self._lock:
+            return self._require_item(item_id).note
+
+    @function_tool
+    def set_name(self, item_id: str, name: str) -> Item:
+        """Rename an item (id stays the same).
+        Arguments: [item_id, name]"""
+        with self._lock:
+            item = self._require_item(item_id)
+            item.name = name
+            return item
+
+    @function_tool
+    def set_qty(self, item_id: str, qty: int) -> Item | None:
+        """Force quantity to an exact value ("0" deletes).
+            Arguments: [item_id, qty]
+        """
+        if qty < 0:
+            raise ValueError("qty must be >= 0")
+        with self._lock:
+            if qty == 0:
+                self.remove_item(item_id)
+                return None
+            item = self._require_item(item_id)
+            item.qty = qty
+            return item
+
+"""
