@@ -1,0 +1,18 @@
+# Core dependencies for the inquire project
+# Text-based survival escape game with AI game master
+
+# Environment and configuration
+python-dotenv>=1.0.0
+
+# AI/LLM APIs
+groq>=0.33.0
+anthropic>=0.71.0
+
+# Standard library dependencies (included with Python)
+# - typing (List, TypedDict, Callable, Tuple)
+# - time
+# - re
+# - json
+# - dataclasses
+# - threading
+# - os
