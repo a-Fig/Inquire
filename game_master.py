@@ -7,7 +7,7 @@ default_start_up_instructions = """
     to start the game. You should also think about and craft your initial message to the player and then send it to them.
     """.strip()
 
-
+#123
 class Gamemaster:
     def __init__(self, story, start_up_instructions=default_start_up_instructions):
         """
